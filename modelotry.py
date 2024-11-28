@@ -58,4 +58,6 @@ def predict():
 
 # Corre la aplicación Flask al final del script
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # Establece el puerto predeterminado en 5000 o selecciona uno aleatorio.
+    port = int(os.environ.get('PORT', 5000))  # Usa una variable de entorno o el 5000 por defecto.
+    app.run(debug=True, host='0.0.0.0', port=port)
