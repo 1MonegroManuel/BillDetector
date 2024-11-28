@@ -43,7 +43,7 @@ def predict():
         output_data = interpreter.get_tensor(output_details[0]['index'])
 
         # Obtiene la clase con mayor probabilidad
-        labels = ["Billete_10", "Billete_100", "Billete_20", "Billete_50"]
+        labels = ["Billete_10","Billete_20", "Billete_50","Billete_100"]
         predicted_index = np.argmax(output_data[0])
         confidence = output_data[0][predicted_index]
 
@@ -56,6 +56,5 @@ def predict():
         print(f"Error durante la predicción: {e}")
         return jsonify({"error": str(e)}), 500
 
-if __name__ == '__main__':
-    # Ejecuta la aplicación Flask
-    app.run(debug=True, host='0.0.0.0', port=5000)
+app.run(debug=True, host='0.0.0.0', port=5000)
+
