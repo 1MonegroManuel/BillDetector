@@ -9,7 +9,7 @@ import os
 app = Flask(__name__)
 
 # Ruta al modelo TFLite
-model_path = os.path.join(os.path.dirname(__file__), "modelo_billetes.tflite")
+model_path = os.path.join(os.path.dirname(__file__), "modelo_billetes_final.tflite")
 
 # Carga el modelo TFLite
 try:
