@@ -8,16 +8,21 @@ import os
 # Inicializa Flask
 app = Flask(__name__)
 
-# Ruta al modelo H5
-model_path = os.path.join(os.path.dirname(__file__), "modelo_billetesh5.h5")
+# Ruta al modelo TFLite
+model_path = os.path.join(os.path.dirname(__file__), "modelo_billetes_final.tflite")
 
-# Carga el modelo H5
+# Carga el modelo TFLite
 try:
-    model = tf.keras.models.load_model(model_path)
+    interpreter = tf.lite.Interpreter(model_path=model_path)
+    interpreter.allocate_tensors()  # Inicializa el modelo
     print("Modelo cargado correctamente.")
 except Exception as e:
     print(f"Error al cargar el modelo: {e}")
     raise e
+
+# Obtén detalles del modelo
+input_details = interpreter.get_input_details()
+output_details = interpreter.get_output_details()
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -29,16 +34,18 @@ def predict():
         # Procesa la imagen recibida
         image_file = request.files['image']
         image = Image.open(io.BytesIO(image_file.read())).convert('RGB')
-        image = image.resize((224, 224))  # Ajusta según el tamaño de entrada del modelo
+        image = image.resize((224, 224))
         input_data = np.expand_dims(np.array(image, dtype=np.float32) / 255.0, axis=0)
 
         # Realiza la predicción
-        predictions = model.predict(input_data)
-        
+        interpreter.set_tensor(input_details[0]['index'], input_data)
+        interpreter.invoke()
+        output_data = interpreter.get_tensor(output_details[0]['index'])
+
         # Obtiene la clase con mayor probabilidad
-        labels = ["Billete_10", "Billete_20", "Billete_50", "Billete_100"]
-        predicted_index = np.argmax(predictions[0])
-        confidence = predictions[0][predicted_index]
+        labels = ["Billete_20","Billete_10",  "Billete_50", "Billete_100"]
+        predicted_index = np.argmax(output_data[0])
+        confidence = output_data[0][predicted_index]
 
         # Retorna la predicción como JSON
         return jsonify({
@@ -51,6 +58,4 @@ def predict():
 
 # Corre la aplicación Flask al final del script
 if __name__ == '__main__':
-    # Establece el puerto predeterminado en 5000 o selecciona uno aleatorio.
-    port = int(os.environ.get('PORT', 5000))  # Usa una variable de entorno o el 5000 por defecto.
-    app.run(debug=True, host='0.0.0.0', port=port)
+    app.run(debug=True, host='0.0.0.0', port=5000)
