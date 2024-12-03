@@ -43,7 +43,7 @@ def predict():
         output_data = interpreter.get_tensor(output_details[0]['index'])
 
         # Obtiene la clase con mayor probabilidad
-        labels = ["Billete_20","Billete_10",  "Billete_50", "Billete_100"]
+        labels = ["Billete_10","Billete_100", "Billete_20","Billete_50"]
         predicted_index = np.argmax(output_data[0])
         confidence = output_data[0][predicted_index]
 
@@ -56,6 +56,6 @@ def predict():
         print(f"Error durante la predicción: {e}")
         return jsonify({"error": str(e)}), 500
 
-# Corre la aplicación Flask al final del script
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    port = int(os.environ.get("PORT", 5000))  # Usa el puerto de la variable de entorno o el 5000 por defecto
+    app.run(debug=True, host='0.0.0.0', port=port)
